@@ -34,7 +34,8 @@
     <ng-template pTemplate="body" let-product>
       <tr>
         <td>{{ product.name }}</td>
-        <td>{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</td> <td>
+        <td>{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</td>
+        <td>
           <i
             class="pi"
             [ngClass]="{
