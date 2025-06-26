@@ -1,6 +1,7 @@
 <p-toast></p-toast>
 
 <div class="card">
+  <!-- Barra de ferramentas para o botão "Novo Produto" -->
   <p-toolbar styleClass="mb-4">
     <ng-template pTemplate="left">
       <button
@@ -14,6 +15,7 @@
     </ng-template>
   </p-toolbar>
 
+  <!-- Tabela de Produtos (p-table) -->
   <p-table
     [value]="products"
     dataKey="id"
@@ -71,6 +73,7 @@
   </p-table>
 </div>
 
+<!-- Diálogo para Inserir/Atualizar Produto (Modal de Formulário) -->
 <p-dialog
   [(visible)]="productDialog"
   [style]="{ width: '450px' }"
@@ -157,6 +160,7 @@
   </ng-template>
 </p-dialog>
 
+<!-- Diálogo de confirmação de exclusão -->
 <p-dialog
   [(visible)]="deleteProductDialog"
   header="Confirmar Exclusão"

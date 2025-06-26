@@ -14,6 +14,8 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
+            "outputPath": "dist/account-frontend",
+            "index": "src/index.html",
             "polyfills": [
               "zone.js"
             ],
@@ -25,7 +27,10 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css", 
+              "node_modules/primeng/resources/primeng.min.css", 
+              "node_modules/primeicons/primeicons.css"
             ]
           },
           "configurations": {
