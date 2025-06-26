@@ -15,6 +15,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar'; // Para a barra de ferramentas
+import { TooltipModule } from 'primeng/tooltip'; // Para tooltips nos botões
 
 // Serviço de mensagens (injeta o MessageService)
 import { MessageService } from 'primeng/api';
@@ -33,9 +34,11 @@ import { MessageService } from 'primeng/api';
     CheckboxModule,
     DialogModule,
     ToastModule,
-    ToolbarModule
+    ToolbarModule,
+    TooltipModule
   ],
-  templateUrl: './product-crud.component.html'
+  templateUrl: './product-crud.component.html',
+  styleUrl: './product-crud.component.scss'
 })
 export class ProductCrudComponent implements OnInit {
   products: Product[] = []; // Lista de produtos
@@ -43,6 +46,7 @@ export class ProductCrudComponent implements OnInit {
   productDialog: boolean = false; // Controla a visibilidade do modal de formulário
   deleteProductDialog: boolean = false; // Controla a visibilidade do modal de exclusão
   productForm!: FormGroup; // Formulário reativo
+  loading: boolean = false; // Estado de carregamento
 
   constructor(
     private fb: FormBuilder,
@@ -64,16 +68,33 @@ export class ProductCrudComponent implements OnInit {
     });
   }
 
-  // --- Operações CRUD (simuladas em memória) ---
+  // Método para aplicar filtro global na tabela
+  applyGlobalFilter(filterValue: string) {
+    // Implementação do filtro será feita pelo PrimeNG automaticamente
+    // através do globalFilterFields definido no template
+  }
 
   // Listar Produtos
   loadProducts() {
-    // Simulação de dados: Em um projeto real, você faria uma chamada HTTP para um backend
-    this.products = [
-      { id: 1, name: 'Smart TV 55"', price: 2500.00, available: true },
-      { id: 2, name: 'Fones Bluetooth', price: 350.50, available: false },
-      { id: 3, name: 'Teclado Mecânico', price: 500.00, available: true }
-    ];
+    this.loading = true;
+    
+    // Simulação de carregamento assíncrono
+    setTimeout(() => {
+      // Simulação de dados: Em um projeto real, você faria uma chamada HTTP para um backend
+      this.products = [
+        { id: 1, name: 'Smart TV 55" 4K Ultra HD', price: 2899.99, available: true },
+        { id: 2, name: 'Fones de Ouvido Bluetooth Premium', price: 459.90, available: true },
+        { id: 3, name: 'Teclado Mecânico RGB Gamer', price: 599.99, available: false },
+        { id: 4, name: 'Mouse Wireless Ergonômico', price: 189.90, available: true },
+        { id: 5, name: 'Notebook Dell Inspiron 15"', price: 3299.00, available: true },
+        { id: 6, name: 'Smartphone Samsung Galaxy S23', price: 2199.99, available: false },
+        { id: 7, name: 'Tablet iPad Air 10.9"', price: 4199.90, available: true },
+        { id: 8, name: 'Webcam HD 1080p Logitech', price: 299.99, available: true },
+        { id: 9, name: 'Monitor Ultrawide 29" LG', price: 1899.90, available: false },
+        { id: 10, name: 'Impressora Multifuncional HP', price: 699.90, available: true }
+      ];
+      this.loading = false;
+    }, 1000); // Simula 1 segundo de carregamento
   }
 
   // Abrir Diálogo para Novo Produto
@@ -100,19 +121,34 @@ export class ProductCrudComponent implements OnInit {
         const index = this.products.findIndex(p => p.id === productToSave.id);
         if (index > -1) {
           this.products[index] = productToSave;
-          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto Atualizado!', life: 3000 });
+          this.messageService.add({ 
+            severity: 'success', 
+            summary: '✅ Produto Atualizado!', 
+            detail: `${productToSave.name} foi atualizado com sucesso.`, 
+            life: 4000 
+          });
         }
       } else {
         // Lógica de Inserção
         productToSave.id = this.generateRandomId(); // Gera um ID temporário
         this.products.push(productToSave);
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto Criado!', life: 3000 });
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: '🎉 Novo Produto Criado!', 
+          detail: `${productToSave.name} foi adicionado ao catálogo.`, 
+          life: 4000 
+        });
       }
 
       this.products = [...this.products]; // Força o Angular a detectar a mudança para atualizar a tabela
       this.hideDialog(); // Fecha o modal
     } else {
-      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Por favor, preencha todos os campos obrigatórios corretamente.', life: 3000 });
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: '❌ Erro de Validação', 
+        detail: 'Por favor, preencha todos os campos obrigatórios corretamente.', 
+        life: 5000 
+      });
     }
   }
 
@@ -125,10 +161,16 @@ export class ProductCrudComponent implements OnInit {
   // Excluir Produto
   deleteProduct() {
     if (this.selectedProduct && this.selectedProduct.id) {
+      const productName = this.selectedProduct.name;
       this.products = this.products.filter(p => p.id !== this.selectedProduct!.id);
       this.deleteProductDialog = false; // Fecha o modal de confirmação
       this.selectedProduct = null; // Limpa o produto selecionado
-      this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto Removido!', life: 3000 });
+      this.messageService.add({ 
+        severity: 'success', 
+        summary: '🗑️ Produto Removido!', 
+        detail: `${productName} foi excluído do catálogo.`, 
+        life: 4000 
+      });
       this.products = [...this.products]; // Força a atualização da tabela
     }
   }

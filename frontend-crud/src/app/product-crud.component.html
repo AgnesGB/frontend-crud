@@ -1,192 +1,338 @@
-<p-toast></p-toast>
+<div class="main-container fade-in-up">
+  <div class="header-section">
+    <h1 class="page-title">
+      <i class="pi pi-shopping-cart title-icon"></i>
+      Gerenciamento de Produtos
+    </h1>
+    <p class="page-subtitle">Gerencie seus produtos de forma fácil e intuitiva</p>
+  </div>
 
-<div class="card">
-  <!-- Barra de ferramentas para o botão "Novo Produto" -->
-  <p-toolbar styleClass="mb-4">
-    <ng-template pTemplate="left">
+  <p-toast position="top-right" [life]="4000"></p-toast>
+
+  <div class="product-card card">
+    <!-- Barra de ferramentas moderna -->
+    <div class="toolbar-container">
+      <div class="toolbar-left">
+        <button
+          pButton
+          pRipple
+          label="Novo Produto"
+          icon="pi pi-plus"
+          class="btn-primary add-product-btn"
+          (click)="openNewProductDialog()"
+        ></button>
+      </div>
+      <div class="toolbar-right">
+        <div class="search-container">
+          <i class="pi pi-search search-icon"></i>
+          <input 
+            type="text" 
+            pInputText 
+            placeholder="Buscar produtos..." 
+            class="search-input"
+            #searchInput
+            (input)="applyGlobalFilter(searchInput.value)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Produtos moderna -->
+    <div class="table-container">
+      <p-table
+        #dt
+        [value]="products"
+        dataKey="id"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [paginator]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} produtos"
+        [globalFilterFields]="['name', 'price', 'available']"
+        styleClass="modern-table"
+        [loading]="loading"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name" class="table-header">
+              <div class="header-content">
+                <i class="pi pi-tag header-icon"></i>
+                Nome 
+                <p-sortIcon field="name"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="price" class="table-header">
+              <div class="header-content">
+                <i class="pi pi-dollar header-icon"></i>
+                Preço 
+                <p-sortIcon field="price"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="available" class="table-header">
+              <div class="header-content">
+                <i class="pi pi-check-circle header-icon"></i>
+                Status 
+                <p-sortIcon field="available"></p-sortIcon>
+              </div>
+            </th>
+            <th class="table-header actions-header">
+              <div class="header-content">
+                <i class="pi pi-cog header-icon"></i>
+                Ações
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-product let-rowIndex="rowIndex">
+          <tr class="table-row" [style.animation-delay]="(rowIndex * 0.1) + 's'">
+            <td class="product-name">
+              <div class="product-info">
+                <i class="pi pi-box product-icon"></i>
+                <span class="product-name-text">{{ product.name }}</span>
+              </div>
+            </td>
+            <td class="product-price">
+              <span class="price-tag">{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</span>
+            </td>
+            <td class="product-status">
+              <span 
+                class="status-badge" 
+                [ngClass]="{
+                  'status-available': product.available,
+                  'status-unavailable': !product.available
+                }"
+              >
+                <i class="pi" [ngClass]="{
+                  'pi-check': product.available,
+                  'pi-times': !product.available
+                }"></i>
+                {{ product.available ? 'Disponível' : 'Indisponível' }}
+              </span>
+            </td>
+            <td class="product-actions">
+              <div class="action-buttons">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="action-btn edit-btn"
+                  pTooltip="Editar produto"
+                  tooltipPosition="top"
+                  (click)="editProduct(product)"
+                ></button>
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-trash"
+                  class="action-btn delete-btn"
+                  pTooltip="Excluir produto"
+                  tooltipPosition="top"
+                  (click)="confirmDeleteProduct(product)"
+                ></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="empty-message">
+              <div class="empty-state">
+                <i class="pi pi-inbox empty-icon"></i>
+                <h3>Nenhum produto encontrado</h3>
+                <p>Comece adicionando seu primeiro produto!</p>
+                <button
+                  pButton
+                  pRipple
+                  label="Adicionar Produto"
+                  icon="pi pi-plus"
+                  class="btn-primary"
+                  (click)="openNewProductDialog()"
+                ></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal moderno para Inserir/Atualizar Produto -->
+<p-dialog
+  [(visible)]="productDialog"
+  [style]="{ width: '500px' }"
+  [modal]="true"
+  styleClass="product-modal"
+  [closable]="false"
+  [draggable]="false"
+>
+  <ng-template pTemplate="header">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-shopping-bag modal-icon"></i>
+        <span>{{ selectedProduct?.id ? 'Editar Produto' : 'Novo Produto' }}</span>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <div class="modal-content">
+      <form [formGroup]="productForm" class="product-form">
+        <div class="form-section">
+          <div class="input-group">
+            <label for="name" class="input-label">
+              <i class="pi pi-tag label-icon"></i>
+              Nome do Produto
+            </label>
+            <input
+              id="name"
+              type="text"
+              pInputText
+              formControlName="name"
+              placeholder="Digite o nome do produto..."
+              class="modern-input"
+              [ngClass]="{
+                'input-error':
+                  productForm.get('name')?.invalid &&
+                  (productForm.get('name')?.dirty || productForm.get('name')?.touched)
+              }"
+            />
+            <div
+              class="error-message"
+              *ngIf="
+                productForm.get('name')?.invalid &&
+                (productForm.get('name')?.dirty || productForm.get('name')?.touched)
+              "
+            >
+              <i class="pi pi-exclamation-circle"></i>
+              Nome é obrigatório
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="price" class="input-label">
+              <i class="pi pi-dollar label-icon"></i>
+              Preço
+            </label>
+            <p-inputNumber
+              id="price"
+              formControlName="price"
+              [min]="0"
+              [showButtons]="true"
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              placeholder="0,00"
+              styleClass="modern-input-number"
+            ></p-inputNumber>
+            <div
+              class="error-message"
+              *ngIf="
+                productForm.get('price')?.invalid &&
+                (productForm.get('price')?.dirty || productForm.get('price')?.touched)
+              "
+            >
+              <i class="pi pi-exclamation-circle"></i>
+              Preço é obrigatório e deve ser um número positivo
+            </div>
+          </div>
+
+          <div class="checkbox-group">
+            <div class="checkbox-container">
+              <p-checkbox
+                formControlName="available"
+                [binary]="true"
+                inputId="available"
+                styleClass="modern-checkbox"
+              ></p-checkbox>
+              <label for="available" class="checkbox-label">
+                <i class="pi pi-check-circle checkbox-icon"></i>
+                Produto disponível para venda
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="modal-footer">
       <button
         pButton
         pRipple
-        label="Novo Produto"
-        icon="pi pi-plus"
-        class="p-button-success mr-2"
-        (click)="openNewProductDialog()"
+        label="Cancelar"
+        icon="pi pi-times"
+        class="btn-secondary cancel-btn"
+        (click)="hideDialog()"
       ></button>
-    </ng-template>
-  </p-toolbar>
-
-  <!-- Tabela de Produtos (p-table) -->
-  <p-table
-    [value]="products"
-    dataKey="id"
-    [rows]="10"
-    [showCurrentPageReport]="true"
-    [paginator]="true"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} entradas"
-    [globalFilterFields]="['name', 'price', 'available']"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
-        <th pSortableColumn="price">Preço <p-sortIcon field="price"></p-sortIcon></th>
-        <th pSortableColumn="available">Disponível <p-sortIcon field="available"></p-sortIcon></th>
-        <th>Ações</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-product>
-      <tr>
-        <td>{{ product.name }}</td>
-        <td>{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</td>
-        <td>
-          <i
-            class="pi"
-            [ngClass]="{
-              'pi-check-circle': product.available,
-              'pi-times-circle': !product.available
-            }"
-            [style.color]="product.available ? 'green' : 'red'"
-          ></i>
-        </td>
-        <td>
-          <button
-            pButton
-            pRipple
-            icon="pi pi-pencil"
-            class="p-button-rounded p-button-success mr-2"
-            (click)="editProduct(product)"
-          ></button>
-          <button
-            pButton
-            pRipple
-            icon="pi pi-trash"
-            class="p-button-rounded p-button-warning"
-            (click)="confirmDeleteProduct(product)"
-          ></button>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="4">Nenhum produto encontrado.</td>
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
-
-<!-- Diálogo para Inserir/Atualizar Produto (Modal de Formulário) -->
-<p-dialog
-  [(visible)]="productDialog"
-  [style]="{ width: '450px' }"
-  header="Detalhes do Produto"
-  [modal]="true"
-  styleClass="p-fluid"
->
-  <ng-template pTemplate="content">
-    <form [formGroup]="productForm">
-      <div class="field mb-3">
-        <label for="name">Nome</label>
-        <input
-          id="name"
-          type="text"
-          pInputText
-          formControlName="name"
-          required
-          autofocus
-          [ngClass]="{
-            'ng-dirty ng-invalid':
-              productForm.get('name')?.invalid &&
-              (productForm.get('name')?.dirty || productForm.get('name')?.touched)
-          }"
-        />
-        <small
-          class="p-error"
-          *ngIf="
-            productForm.get('name')?.invalid &&
-            (productForm.get('name')?.dirty || productForm.get('name')?.touched)
-          "
-          >Nome é obrigatório.</small
-        >
-      </div>
-
-      <div class="field mb-3">
-        <label for="price">Preço</label>
-        <p-inputNumber
-          id="price"
-          formControlName="price"
-          [min]="0"
-          [showButtons]="true"
-          mode="decimal"
-          [minFractionDigits]="2"
-          [maxFractionDigits]="2"
-        ></p-inputNumber>
-        <small
-          class="p-error"
-          *ngIf="
-            productForm.get('price')?.invalid &&
-            (productForm.get('price')?.dirty || productForm.get('price')?.touched)
-          "
-          >Preço é obrigatório e deve ser um número positivo.</small
-        >
-      </div>
-
-      <div class="field-checkbox mb-3">
-        <p-checkbox
-          formControlName="available"
-          [binary]="true"
-          inputId="available"
-        ></p-checkbox>
-        <label for="available" class="ml-2">Disponível</label>
-      </div>
-    </form>
-  </ng-template>
-
-  <ng-template pTemplate="footer">
-    <button
-      pButton
-      pRipple
-      label="Cancelar"
-      icon="pi pi-times"
-      class="p-button-text"
-      (click)="hideDialog()"
-    ></button>
-    <button
-      pButton
-      pRipple
-      label="Salvar"
-      icon="pi pi-check"
-      class="p-button-text"
-      (click)="saveProduct()"
-    ></button>
+      <button
+        pButton
+        pRipple
+        [label]="selectedProduct?.id ? 'Atualizar' : 'Salvar'"
+        icon="pi pi-check"
+        class="btn-primary save-btn"
+        (click)="saveProduct()"
+        [disabled]="productForm.invalid"
+      ></button>
+    </div>
   </ng-template>
 </p-dialog>
 
-<!-- Diálogo de confirmação de exclusão -->
+<!-- Modal moderno de confirmação de exclusão -->
 <p-dialog
   [(visible)]="deleteProductDialog"
-  header="Confirmar Exclusão"
   [modal]="true"
   [style]="{ width: '450px' }"
+  styleClass="delete-modal"
+  [closable]="false"
+  [draggable]="false"
 >
-  <div class="flex align-items-center justify-content-center">
-    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-    <span>Tem certeza que deseja excluir o produto "<b>{{ selectedProduct?.name }}</b>"?</span>
-  </div>
+  <ng-template pTemplate="header">
+    <div class="modal-header delete-header">
+      <div class="modal-title">
+        <i class="pi pi-exclamation-triangle modal-icon warning-icon"></i>
+        <span>Confirmar Exclusão</span>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <div class="delete-content">
+      <div class="warning-message">
+        <div class="warning-icon-container">
+          <i class="pi pi-trash warning-large-icon"></i>
+        </div>
+        <div class="warning-text">
+          <h3>Tem certeza que deseja excluir?</h3>
+          <p>O produto <strong>"{{ selectedProduct?.name }}"</strong> será removido permanentemente.</p>
+          <p class="warning-note">Esta ação não pode ser desfeita.</p>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
   <ng-template pTemplate="footer">
-    <button
-      pButton
-      pRipple
-      icon="pi pi-times"
-      class="p-button-text"
-      label="Não"
-      (click)="deleteProductDialog = false"
-    ></button>
-    <button
-      pButton
-      pRipple
-      icon="pi pi-check"
-      class="p-button-text"
-      label="Sim"
-      (click)="deleteProduct()"
-    ></button>
+    <div class="modal-footer">
+      <button
+        pButton
+        pRipple
+        icon="pi pi-times"
+        label="Cancelar"
+        class="btn-secondary cancel-btn"
+        (click)="deleteProductDialog = false"
+      ></button>
+      <button
+        pButton
+        pRipple
+        icon="pi pi-trash"
+        label="Excluir"
+        class="btn-danger delete-confirm-btn"
+        (click)="deleteProduct()"
+      ></button>
+    </div>
   </ng-template>
 </p-dialog>
