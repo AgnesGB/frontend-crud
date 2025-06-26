@@ -1,0 +1,196 @@
+/* Estilos globais da aplicação */
+@import 'primeicons/primeicons.css';
+
+/* PrimeNG 19 CSS Variables - Base Theme */
+:root {
+  /* Primary Palette */
+  --p-primary-50: #eff6ff;
+  --p-primary-100: #dbeafe;
+  --p-primary-200: #bfdbfe;
+  --p-primary-300: #93c5fd;
+  --p-primary-400: #60a5fa;
+  --p-primary-500: #3b82f6;
+  --p-primary-600: #2563eb;
+  --p-primary-700: #1d4ed8;
+  --p-primary-800: #1e40af;
+  --p-primary-900: #1e3a8a;
+  --p-primary-950: #172554;
+
+  /* Surface Palette */
+  --p-surface-0: #ffffff;
+  --p-surface-50: #f8fafc;
+  --p-surface-100: #f1f5f9;
+  --p-surface-200: #e2e8f0;
+  --p-surface-300: #cbd5e1;
+  --p-surface-400: #94a3b8;
+  --p-surface-500: #64748b;
+  --p-surface-600: #475569;
+  --p-surface-700: #334155;
+  --p-surface-800: #1e293b;
+  --p-surface-900: #0f172a;
+  --p-surface-950: #020617;
+
+  /* Text Colors */
+  --p-text-color: #334155;
+  --p-text-muted-color: #64748b;
+
+  /* Form & Input */
+  --p-form-field-padding-x: 0.75rem;
+  --p-form-field-padding-y: 0.625rem;
+  --p-border-radius: 0.375rem;
+  --p-border-color: #e2e8f0;
+  --p-hover-color: #f8fafc;
+  --p-focus-ring: 0 0 0 2px #bfdbfe;
+
+  /* Component specific tokens */
+  --p-button-padding-x: 1rem;
+  --p-button-padding-y: 0.625rem;
+  --p-card-padding: 1.5rem;
+  --p-toolbar-padding: 1rem;
+}
+
+/* Global Styles */
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: var(--p-surface-50);
+  color: var(--p-text-color);
+  line-height: 1.6;
+}
+
+/* PrimeNG Component Overrides */
+.p-component {
+  font-family: inherit;
+}
+
+/* Button Styles */
+.p-button {
+  background: var(--p-primary-500);
+  border: 1px solid var(--p-primary-500);
+  color: #ffffff;
+  padding: var(--p-button-padding-y) var(--p-button-padding-x);
+  border-radius: var(--p-border-radius);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.p-button:enabled:hover {
+  background: var(--p-primary-600);
+  border-color: var(--p-primary-600);
+}
+
+.p-button:focus {
+  outline: 0;
+  box-shadow: var(--p-focus-ring);
+}
+
+.p-button-success {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+.p-button-success:enabled:hover {
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+/* Input Styles */
+.p-inputtext {
+  border: 1px solid var(--p-border-color);
+  border-radius: var(--p-border-radius);
+  padding: var(--p-form-field-padding-y) var(--p-form-field-padding-x);
+  background: var(--p-surface-0);
+  color: var(--p-text-color);
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.p-inputtext:enabled:focus {
+  outline: 0;
+  border-color: var(--p-primary-500);
+  box-shadow: var(--p-focus-ring);
+}
+
+/* Table Styles */
+.p-datatable {
+  background: var(--p-surface-0);
+  border: 1px solid var(--p-border-color);
+  border-radius: var(--p-border-radius);
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background: var(--p-surface-100);
+  border-bottom: 1px solid var(--p-border-color);
+  color: var(--p-text-color);
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border-bottom: 1px solid var(--p-border-color);
+  padding: 1rem;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: var(--p-hover-color);
+}
+
+/* Dialog Styles */
+.p-dialog {
+  background: var(--p-surface-0);
+  border-radius: var(--p-border-radius);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.p-dialog .p-dialog-header {
+  background: var(--p-surface-0);
+  border-bottom: 1px solid var(--p-border-color);
+  padding: 1.5rem;
+}
+
+.p-dialog .p-dialog-content {
+  background: var(--p-surface-0);
+  padding: 1.5rem;
+}
+
+/* Toolbar Styles */
+.p-toolbar {
+  background: var(--p-surface-0);
+  border: 1px solid var(--p-border-color);
+  border-radius: var(--p-border-radius);
+  padding: var(--p-toolbar-padding);
+  margin-bottom: 1rem;
+}
+
+/* Utility Classes */
+.card {
+  background: var(--p-surface-0);
+  border-radius: var(--p-border-radius);
+  padding: var(--p-card-padding);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--p-text-color);
+}
