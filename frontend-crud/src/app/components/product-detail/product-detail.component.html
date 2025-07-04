@@ -1,0 +1,61 @@
+<!-- Diálogo para Visualizar Detalhes do Produto -->
+<p-dialog
+  [(visible)]="visible"
+  [style]="{ width: '500px' }"
+  header="Detalhes do Produto"
+  [modal]="true"
+  (onHide)="hideDialog()"
+>
+  <ng-template pTemplate="content">
+    <div class="product-details" *ngIf="product">
+      <div class="detail-row">
+        <label class="detail-label">ID:</label>
+        <span class="detail-value">{{ product.id }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <label class="detail-label">Nome:</label>
+        <span class="detail-value">{{ product.name }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <label class="detail-label">Preço:</label>
+        <span class="detail-value">{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <label class="detail-label">Disponibilidade:</label>
+        <span class="detail-value">
+          <i
+            class="pi mr-2"
+            [ngClass]="{
+              'pi-check-circle': product.available,
+              'pi-times-circle': !product.available
+            }"
+            [style.color]="product.available ? 'green' : 'red'"
+          ></i>
+          {{ product.available ? 'Disponível' : 'Indisponível' }}
+        </span>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Editar"
+      icon="pi pi-pencil"
+      class="p-button-success mr-2"
+      (click)="onEdit()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      label="Fechar"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="onClose()"
+    ></button>
+  </ng-template>
+</p-dialog>

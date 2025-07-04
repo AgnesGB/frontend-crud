@@ -1,0 +1,82 @@
+<div class="card">
+  <!-- Barra de ferramentas para o botão "Novo Produto" -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <button
+        pButton
+        pRipple
+        label="Novo Produto"
+        icon="pi pi-plus"
+        class="p-button-success mr-2"
+        (click)="onNewProduct()"
+      ></button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Tabela de Produtos (p-table) -->
+  <p-table
+    [value]="products"
+    dataKey="id"
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    [paginator]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} entradas"
+    [globalFilterFields]="['name', 'price', 'available']"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
+        <th pSortableColumn="price">Preço <p-sortIcon field="price"></p-sortIcon></th>
+        <th pSortableColumn="available">Disponível <p-sortIcon field="available"></p-sortIcon></th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</td>
+        <td>
+          <i
+            class="pi"
+            [ngClass]="{
+              'pi-check-circle': product.available,
+              'pi-times-circle': !product.available
+            }"
+            [style.color]="product.available ? 'green' : 'red'"
+          ></i>
+        </td>
+        <td>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="onViewProduct(product)"
+            title="Visualizar"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="onEditProduct(product)"
+            title="Editar"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning"
+            (click)="onDeleteProduct(product)"
+            title="Excluir"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4">Nenhum produto encontrado.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

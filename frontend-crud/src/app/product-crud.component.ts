@@ -1,19 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 
 // Modelo de Produto
 import { Product } from './models/product.model';
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { CheckboxModule } from 'primeng/checkbox';
-import { DialogModule } from 'primeng/dialog';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
+// Serviço
+import { ProductService } from './services/product.service';
 
+// Componentes
+import { ProductListComponent } from './components/product-list/product-list.component';
+import { ProductFormComponent } from './components/product-form/product-form.component';
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { ProductDeleteComponent } from './components/product-delete/product-delete.component';
+
+import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -21,111 +22,122 @@ import { MessageService } from 'primeng/api';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    // Componentes
+    ProductListComponent,
+    ProductFormComponent,
+    ProductDetailComponent,
+    ProductDeleteComponent,
     // PrimeNG
-    TableModule,
-    ButtonModule,
-    InputTextModule,
-    InputNumberModule,
-    CheckboxModule,
-    DialogModule,
-    ToastModule,
-    ToolbarModule
+    ToastModule
   ],
   templateUrl: './product-crud.component.html'
 })
-export class ProductCrudComponent implements OnInit {
-  products: Product[] = []; 
-  selectedProduct: Product | null = null; 
-  productDialog: boolean = false; 
-  deleteProductDialog: boolean = false; 
-  productForm!: FormGroup; 
+export class ProductCrudComponent implements OnInit, OnDestroy {
+  products: Product[] = [];
+  selectedProduct: Product | null = null;
+  
+  // Controle de visibilidade dos diálogos
+  formDialogVisible: boolean = false;
+  detailDialogVisible: boolean = false;
+  deleteDialogVisible: boolean = false;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private fb: FormBuilder,
-    private messageService: MessageService 
+    private productService: ProductService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
-    this.loadProducts(); 
-    this.initProductForm(); 
+    this.loadProducts();
   }
 
-  initProductForm() {
-    this.productForm = this.fb.group({
-      id: [null],
-      name: ['', Validators.required],
-      price: [null, [Validators.required, Validators.min(0)]], 
-      available: [false]
-    });
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
-
-  // --- Operações CRUD (simuladas em memória) ---
 
   loadProducts() {
-    this.products = [
-      { id: 1, name: 'Smart TV 55"', price: 2500.00, available: true },
-      { id: 2, name: 'Fones Bluetooth', price: 350.50, available: false },
-      { id: 3, name: 'Teclado Mecânico', price: 500.00, available: true }
-    ];
+    this.productService.getProducts()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(products => {
+        this.products = products;
+      });
   }
 
-  openNewProductDialog() {
+  // Eventos do ProductListComponent
+  onNewProduct() {
     this.selectedProduct = null;
-    this.initProductForm(); 
-    this.productDialog = true; 
+    this.formDialogVisible = true;
   }
 
-  editProduct(product: Product) {
-    this.selectedProduct = { ...product }; 
-    this.productForm.patchValue(this.selectedProduct); 
-    this.productDialog = true; 
+  onEditProduct(product: Product) {
+    this.selectedProduct = { ...product };
+    this.formDialogVisible = true;
   }
 
-  saveProduct() {
-    if (this.productForm.valid) {
-      const productToSave: Product = this.productForm.value;
-
-      if (productToSave.id) {
-        const index = this.products.findIndex(p => p.id === productToSave.id);
-        if (index > -1) {
-          this.products[index] = productToSave;
-          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto Atualizado!', life: 3000 });
-        }
-      } else {
-        productToSave.id = this.generateRandomId();
-        this.products.push(productToSave);
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto Criado!', life: 3000 });
-      }
-
-      this.products = [...this.products];
-      this.hideDialog();
-    } else {
-      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Por favor, preencha todos os campos obrigatórios corretamente.', life: 3000 });
-    }
-  }
-
-  confirmDeleteProduct(product: Product) {
+  onViewProduct(product: Product) {
     this.selectedProduct = product;
-    this.deleteProductDialog = true;
+    this.detailDialogVisible = true;
   }
 
-  deleteProduct() {
-    if (this.selectedProduct && this.selectedProduct.id) {
-      this.products = this.products.filter(p => p.id !== this.selectedProduct!.id);
-      this.deleteProductDialog = false;
-      this.selectedProduct = null;
-      this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto Removido!', life: 3000 });
-      this.products = [...this.products];
+  onDeleteProduct(product: Product) {
+    this.selectedProduct = product;
+    this.deleteDialogVisible = true;
+  }
+
+  // Eventos do ProductFormComponent
+  onSaveProduct(product: Product) {
+    if (product.id) {
+      this.productService.updateProduct(product);
+      this.messageService.add({ 
+        severity: 'success', 
+        summary: 'Sucesso', 
+        detail: 'Produto atualizado com sucesso!', 
+        life: 3000 
+      });
+    } else {
+      this.productService.addProduct(product);
+      this.messageService.add({ 
+        severity: 'success', 
+        summary: 'Sucesso', 
+        detail: 'Produto criado com sucesso!', 
+        life: 3000 
+      });
     }
+    this.formDialogVisible = false;
   }
 
-  hideDialog() {
-    this.productDialog = false;
-    this.initProductForm();
+  onCancelForm() {
+    this.formDialogVisible = false;
   }
 
-  private generateRandomId(): number {
-    return Math.floor(Math.random() * 1000000);
+  // Eventos do ProductDetailComponent
+  onEditFromDetail(product: Product) {
+    this.detailDialogVisible = false;
+    this.selectedProduct = { ...product };
+    this.formDialogVisible = true;
+  }
+
+  onCloseDetail() {
+    this.detailDialogVisible = false;
+  }
+
+  // Eventos do ProductDeleteComponent
+  onConfirmDelete() {
+    if (this.selectedProduct?.id) {
+      this.productService.deleteProduct(this.selectedProduct.id);
+      this.messageService.add({ 
+        severity: 'success', 
+        summary: 'Sucesso', 
+        detail: 'Produto excluído com sucesso!', 
+        life: 3000 
+      });
+    }
+    this.deleteDialogVisible = false;
+  }
+
+  onCancelDelete() {
+    this.deleteDialogVisible = false;
   }
 }

@@ -1,0 +1,84 @@
+<!-- Diálogo para Inserir/Atualizar Produto (Modal de Formulário) -->
+<p-dialog
+  [(visible)]="visible"
+  [style]="{ width: '450px' }"
+  [header]="dialogTitle"
+  [modal]="true"
+  styleClass="p-fluid"
+  (onHide)="hideDialog()"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="productForm">
+      <div class="field mb-3">
+        <label for="name">Nome *</label>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          formControlName="name"
+          required
+          autofocus
+          [ngClass]="{
+            'ng-dirty ng-invalid': isFieldInvalid('name')
+          }"
+        />
+        <small
+          class="p-error"
+          *ngIf="isFieldInvalid('name')"
+        >
+          Nome é obrigatório.
+        </small>
+      </div>
+
+      <div class="field mb-3">
+        <label for="price">Preço *</label>
+        <p-inputNumber
+          id="price"
+          formControlName="price"
+          [min]="0"
+          [showButtons]="true"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          currency="BRL"
+          locale="pt-BR"
+        ></p-inputNumber>
+        <small
+          class="p-error"
+          *ngIf="isFieldInvalid('price')"
+        >
+          Preço é obrigatório e deve ser um número positivo.
+        </small>
+      </div>
+
+      <div class="field-checkbox mb-3">
+        <p-checkbox
+          formControlName="available"
+          [binary]="true"
+          inputId="available"
+        ></p-checkbox>
+        <label for="available" class="ml-2">Disponível</label>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Cancelar"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="onCancel()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      label="Salvar"
+      icon="pi pi-check"
+      class="p-button-text"
+      [disabled]="productForm.invalid"
+      (click)="onSave()"
+    ></button>
+  </ng-template>
+</p-dialog>

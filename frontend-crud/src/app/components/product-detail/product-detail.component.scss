@@ -1,0 +1,26 @@
+/* Estilos específicos para o detalhe do produto */
+.product-details {
+  padding: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.detail-label {
+  font-weight: bold;
+  min-width: 120px;
+  margin-right: 1rem;
+  color: #495057;
+}
+
+.detail-value {
+  flex: 1;
+  font-size: 1.1rem;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}

@@ -1,0 +1,40 @@
+<!-- Diálogo de confirmação de exclusão -->
+<p-dialog
+  [(visible)]="visible"
+  header="Confirmar Exclusão"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+  (onHide)="hideDialog()"
+>
+  <div class="confirmation-content">
+    <i class="pi pi-exclamation-triangle warning-icon"></i>
+    <div class="confirmation-message">
+      <p>Tem certeza que deseja excluir o produto?</p>
+      <div class="product-info" *ngIf="product">
+        <strong>{{ product.name }}</strong>
+        <br>
+        <small>ID: {{ product.id }} | Preço: {{ product.price | currency:'BRL':'symbol':'1.2-2' }}</small>
+      </div>
+      <p class="warning-text">Esta ação não pode ser desfeita.</p>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      icon="pi pi-times"
+      class="p-button-text"
+      label="Cancelar"
+      (click)="onCancel()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      icon="pi pi-check"
+      class="p-button-danger"
+      label="Confirmar Exclusão"
+      (click)="onConfirm()"
+    ></button>
+  </ng-template>
+</p-dialog>
