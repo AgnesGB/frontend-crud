@@ -118,7 +118,7 @@ src/app/
 2. **Executar aplicação:**
    ```bash
    npx ng serve
-   ```
+   ``` 
 
 3. **Acessar:** http://localhost:4200
 
