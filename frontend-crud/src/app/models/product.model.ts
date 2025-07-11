@@ -1,6 +1,20 @@
 export interface Product {
-  id: number;          // Para identificar o produto (usado na edição/remoção)
-  name: string;        // Atributo string
-  price: number;       // Atributo número (preço)
-  available: boolean;  // Atributo booleano (disponível ou não)
+  id?: number;          // Opcional para criação, obrigatório para edição
+  name: string;         // Nome do produto
+  price: number;        // Preço do produto
+  available: boolean;   // Se está disponível
+  created_at?: string;  // Data de criação (somente leitura)
+  updated_at?: string;  // Data de atualização (somente leitura)
+}
+
+export interface CreateProductRequest {
+  name: string;
+  price: number;
+  available: boolean;
+}
+
+export interface UpdateProductRequest {
+  name?: string;
+  price?: number;
+  available?: boolean;
 }

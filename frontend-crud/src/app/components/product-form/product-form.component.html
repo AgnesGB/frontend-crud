@@ -26,7 +26,7 @@
           class="p-error"
           *ngIf="isFieldInvalid('name')"
         >
-          Nome é obrigatório.
+          {{ getFieldError('name') }}
         </small>
       </div>
 
@@ -47,7 +47,7 @@
           class="p-error"
           *ngIf="isFieldInvalid('price')"
         >
-          Preço é obrigatório e deve ser um número positivo.
+          {{ getFieldError('price') }}
         </small>
       </div>
 

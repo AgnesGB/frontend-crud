@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Product } from '../../models/product.model';
+import { Product, CreateProductRequest, UpdateProductRequest } from '../../models/product.model';
 
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -29,7 +29,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
   @Input() product: Product | null = null;
   
   @Output() visibleChange = new EventEmitter<boolean>();
-  @Output() save = new EventEmitter<Product>();
+  @Output() save = new EventEmitter<CreateProductRequest | { id: number, data: UpdateProductRequest }>();
   @Output() cancel = new EventEmitter<void>();
 
   productForm!: FormGroup;
@@ -52,33 +52,52 @@ export class ProductFormComponent implements OnInit, OnChanges {
 
   initProductForm() {
     this.productForm = this.fb.group({
-      id: [null],
-      name: ['', Validators.required],
-      price: [null, [Validators.required, Validators.min(0)]],
-      available: [false]
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      price: [null, [Validators.required, Validators.min(0.01)]],
+      available: [true]
     });
   }
 
   updateForm() {
-    if (this.product) {
+    if (this.product && this.product.id) {
       this.isEditMode = true;
-      this.productForm.patchValue(this.product);
+      this.productForm.patchValue({
+        name: this.product.name,
+        price: this.product.price,
+        available: this.product.available
+      });
     } else {
       this.isEditMode = false;
       this.productForm.reset();
       this.productForm.patchValue({
-        id: null,
         name: '',
         price: null,
-        available: false
+        available: true
       });
     }
   }
 
   onSave() {
     if (this.productForm.valid) {
-      const productToSave: Product = this.productForm.value;
-      this.save.emit(productToSave);
+      const formData = this.productForm.value;
+      
+      if (this.isEditMode && this.product?.id) {
+        // Modo edição - envia dados para atualização
+        const updateData: UpdateProductRequest = {
+          name: formData.name,
+          price: formData.price,
+          available: formData.available
+        };
+        this.save.emit({ id: this.product.id, data: updateData });
+      } else {
+        // Modo criação - envia dados para criação
+        const createData: CreateProductRequest = {
+          name: formData.name,
+          price: formData.price,
+          available: formData.available
+        };
+        this.save.emit(createData);
+      }
     }
   }
 
@@ -99,5 +118,21 @@ export class ProductFormComponent implements OnInit, OnChanges {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.productForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getFieldError(fieldName: string): string {
+    const field = this.productForm.get(fieldName);
+    if (field && field.errors && (field.dirty || field.touched)) {
+      if (field.errors['required']) {
+        return `${fieldName === 'name' ? 'Nome' : fieldName === 'price' ? 'Preço' : 'Campo'} é obrigatório`;
+      }
+      if (field.errors['minlength']) {
+        return `${fieldName === 'name' ? 'Nome' : 'Campo'} deve ter pelo menos ${field.errors['minlength'].requiredLength} caracteres`;
+      }
+      if (field.errors['min']) {
+        return `${fieldName === 'price' ? 'Preço' : 'Campo'} deve ser maior que ${field.errors['min'].min}`;
+      }
+    }
+    return '';
   }
 }

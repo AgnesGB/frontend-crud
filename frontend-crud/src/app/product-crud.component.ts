@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 
 // Modelo de Produto
-import { Product } from './models/product.model';
+import { Product, CreateProductRequest, UpdateProductRequest } from './models/product.model';
 
 // Serviço
 import { ProductService } from './services/product.service';
@@ -41,6 +41,10 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
   detailDialogVisible: boolean = false;
   deleteDialogVisible: boolean = false;
 
+  // Loading states
+  isLoading: boolean = false;
+  isSubmitting: boolean = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -50,6 +54,7 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadProducts();
+    this.subscribeToProductsChanges();
   }
 
   ngOnDestroy() {
@@ -58,7 +63,28 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
   }
 
   loadProducts() {
+    this.isLoading = true;
     this.productService.getProducts()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (products) => {
+          this.products = products;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Erro', 
+            detail: error || 'Erro ao carregar produtos',
+            life: 5000 
+          });
+          this.isLoading = false;
+        }
+      });
+  }
+
+  subscribeToProductsChanges() {
+    this.productService.products$
       .pipe(takeUntil(this.destroy$))
       .subscribe(products => {
         this.products = products;
@@ -87,25 +113,60 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
   }
 
   // Eventos do ProductFormComponent
-  onSaveProduct(product: Product) {
-    if (product.id) {
-      this.productService.updateProduct(product);
-      this.messageService.add({ 
-        severity: 'success', 
-        summary: 'Sucesso', 
-        detail: 'Produto atualizado com sucesso!', 
-        life: 3000 
-      });
+  onSaveProduct(data: CreateProductRequest | { id: number, data: UpdateProductRequest }) {
+    this.isSubmitting = true;
+
+    if ('id' in data) {
+      // Modo edição
+      this.productService.updateProduct(data.id, data.data)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (updatedProduct) => {
+            this.messageService.add({ 
+              severity: 'success', 
+              summary: 'Sucesso', 
+              detail: 'Produto atualizado com sucesso!', 
+              life: 3000 
+            });
+            this.formDialogVisible = false;
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Erro', 
+              detail: error || 'Erro ao atualizar produto',
+              life: 5000 
+            });
+            this.isSubmitting = false;
+          }
+        });
     } else {
-      this.productService.addProduct(product);
-      this.messageService.add({ 
-        severity: 'success', 
-        summary: 'Sucesso', 
-        detail: 'Produto criado com sucesso!', 
-        life: 3000 
-      });
+      // Modo criação
+      this.productService.addProduct(data)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (newProduct) => {
+            this.messageService.add({ 
+              severity: 'success', 
+              summary: 'Sucesso', 
+              detail: 'Produto criado com sucesso!', 
+              life: 3000 
+            });
+            this.formDialogVisible = false;
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Erro', 
+              detail: error || 'Erro ao criar produto',
+              life: 5000 
+            });
+            this.isSubmitting = false;
+          }
+        });
     }
-    this.formDialogVisible = false;
   }
 
   onCancelForm() {
@@ -126,18 +187,39 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
   // Eventos do ProductDeleteComponent
   onConfirmDelete() {
     if (this.selectedProduct?.id) {
-      this.productService.deleteProduct(this.selectedProduct.id);
-      this.messageService.add({ 
-        severity: 'success', 
-        summary: 'Sucesso', 
-        detail: 'Produto excluído com sucesso!', 
-        life: 3000 
-      });
+      this.isSubmitting = true;
+      this.productService.deleteProduct(this.selectedProduct.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.messageService.add({ 
+              severity: 'success', 
+              summary: 'Sucesso', 
+              detail: 'Produto excluído com sucesso!', 
+              life: 3000 
+            });
+            this.deleteDialogVisible = false;
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Erro', 
+              detail: error || 'Erro ao excluir produto',
+              life: 5000 
+            });
+            this.isSubmitting = false;
+          }
+        });
     }
-    this.deleteDialogVisible = false;
   }
 
   onCancelDelete() {
     this.deleteDialogVisible = false;
+  }
+
+  // Método para recarregar produtos manualmente
+  refreshProducts() {
+    this.productService.loadProducts();
   }
 }
