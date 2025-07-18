@@ -1,34 +1,73 @@
-<p-toast></p-toast>
+<div class="crud-container">
+  <p-toast></p-toast>
 
-<!-- Componente de Listagem -->
-<app-product-list
-  [products]="products"
-  (newProduct)="onNewProduct()"
-  (editProduct)="onEditProduct($event)"
-  (deleteProduct)="onDeleteProduct($event)"
-  (viewProduct)="onViewProduct($event)"
-></app-product-list>
+  <!-- Cabeçalho com informações sobre rotas -->
+  <div class="crud-header">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="header-content">
+          <h2>
+            <i class="pi pi-shopping-cart"></i>
+            CRUD Completo de Produtos
+          </h2>
+          <p class="header-description">
+            Esta é a página principal do CRUD. Você também pode acessar as funcionalidades individualmente através das rotas específicas.
+          </p>
+        </div>
+      </ng-template>
+      
+      <div class="route-links">
+        <h4>Acesso às rotas individuais:</h4>
+        <div class="link-buttons">
+          <p-button 
+            label="Página de Listagem" 
+            icon="pi pi-list" 
+            severity="secondary"
+            [text]="true"
+            routerLink="/products/list">
+          </p-button>
+          <p-button 
+            label="Novo Produto" 
+            icon="pi pi-plus" 
+            severity="secondary"
+            [text]="true"
+            routerLink="/products/new">
+          </p-button>
+        </div>
+      </div>
+    </p-card>
+  </div>
 
-<!-- Componente de Formulário -->
-<app-product-form
-  [(visible)]="formDialogVisible"
-  [product]="selectedProduct"
-  (save)="onSaveProduct($event)"
-  (cancel)="onCancelForm()"
-></app-product-form>
+  <!-- Componente de Listagem -->
+  <app-product-list
+    [products]="products"
+    (newProduct)="onNewProduct()"
+    (editProduct)="onEditProduct($event)"
+    (deleteProduct)="onDeleteProduct($event)"
+    (viewProduct)="onViewProduct($event)"
+  ></app-product-list>
 
-<!-- Componente de Detalhes -->
-<app-product-detail
-  [(visible)]="detailDialogVisible"
-  [product]="selectedProduct"
-  (edit)="onEditFromDetail($event)"
-  (close)="onCloseDetail()"
-></app-product-detail>
+  <!-- Componente de Formulário -->
+  <app-product-form
+    [(visible)]="formDialogVisible"
+    [product]="selectedProduct"
+    (save)="onSaveProduct($event)"
+    (cancel)="onCancelForm()"
+  ></app-product-form>
 
-<!-- Componente de Confirmação de Exclusão -->
-<app-product-delete
-  [(visible)]="deleteDialogVisible"
-  [product]="selectedProduct"
-  (confirm)="onConfirmDelete()"
-  (cancel)="onCancelDelete()"
-></app-product-delete>
+  <!-- Componente de Detalhes -->
+  <app-product-detail
+    [(visible)]="detailDialogVisible"
+    [product]="selectedProduct"
+    (edit)="onEditFromDetail($event)"
+    (close)="onCloseDetail()"
+  ></app-product-detail>
+
+  <!-- Componente de Confirmação de Exclusão -->
+  <app-product-delete
+    [(visible)]="deleteDialogVisible"
+    [product]="selectedProduct"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()"
+  ></app-product-delete>
+</div>

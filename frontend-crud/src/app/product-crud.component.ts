@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 // Modelo de Produto
@@ -15,6 +16,8 @@ import { ProductDetailComponent } from './components/product-detail/product-deta
 import { ProductDeleteComponent } from './components/product-delete/product-delete.component';
 
 import { ToastModule } from 'primeng/toast';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -22,15 +25,19 @@ import { MessageService } from 'primeng/api';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     // Componentes
     ProductListComponent,
     ProductFormComponent,
     ProductDetailComponent,
     ProductDeleteComponent,
     // PrimeNG
-    ToastModule
+    ToastModule,
+    CardModule,
+    ButtonModule
   ],
-  templateUrl: './product-crud.component.html'
+  templateUrl: './product-crud.component.html',
+  styleUrls: ['./product-crud.component.scss']
 })
 export class ProductCrudComponent implements OnInit, OnDestroy {
   products: Product[] = [];
