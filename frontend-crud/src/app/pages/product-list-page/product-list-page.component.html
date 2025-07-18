@@ -1,0 +1,29 @@
+<div class="product-list-page">
+  <p-toast></p-toast>
+  
+  <div class="page-header">
+    <p-toolbar>
+      <ng-template pTemplate="left">
+        <h2>Lista de Produtos</h2>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <p-button 
+          label="Voltar ao CRUD" 
+          icon="pi pi-arrow-left" 
+          severity="secondary"
+          (click)="goBackToCrud()">
+        </p-button>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <div class="page-content">
+    <app-product-list
+      [products]="products"
+      (newProduct)="onNewProduct()"
+      (editProduct)="onEditProduct($event)"
+      (viewProduct)="onViewProduct($event)"
+      (deleteProduct)="onDeleteProduct($event)">
+    </app-product-list>
+  </div>
+</div>
