@@ -1,0 +1,67 @@
+.crud-container {
+  padding: 20px;
+}
+
+.crud-header {
+  margin-bottom: 30px;
+}
+
+.header-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.header-content h2 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.header-description {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.route-links {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.route-links h4 {
+  margin: 0 0 15px 0;
+  color: #555;
+  font-weight: 500;
+}
+
+.link-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .crud-container {
+    padding: 10px;
+  }
+  
+  .header-content h2 {
+    font-size: 1.5rem;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .link-buttons {
+    flex-direction: column;
+  }
+  
+  .link-buttons :host ::ng-deep .p-button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,102 @@
+<div class="product-detail-page">
+  <p-toast></p-toast>
+  
+  <div class="page-header">
+    <p-toolbar>
+      <ng-template pTemplate="left">
+        <h2>Detalhes do Produto</h2>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <p-button 
+          label="Lista" 
+          icon="pi pi-list" 
+          severity="secondary"
+          [text]="true"
+          (click)="goBackToList()">
+        </p-button>
+        <p-button 
+          label="CRUD" 
+          icon="pi pi-arrow-left" 
+          severity="secondary"
+          (click)="goBackToCrud()">
+        </p-button>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <div class="page-content">
+    <div *ngIf="loading" class="loading-container">
+      <i class="pi pi-spinner pi-spin" style="font-size: 2rem"></i>
+      <p>Carregando produto...</p>
+    </div>
+
+    <div *ngIf="!loading && currentProduct" class="detail-container">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="product-header">
+            <h3>{{ currentProduct.name }}</h3>
+            <div class="action-buttons">
+              <p-button 
+                label="Editar" 
+                icon="pi pi-pencil" 
+                severity="info"
+                (click)="onEdit()">
+              </p-button>
+              <p-button 
+                label="Excluir" 
+                icon="pi pi-trash" 
+                severity="danger"
+                (click)="onDelete()">
+              </p-button>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="product-details">
+          <div class="detail-row">
+            <label>ID:</label>
+            <span>{{ currentProduct.id }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <label>Nome:</label>
+            <span>{{ currentProduct.name }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <label>Preço:</label>
+            <span>{{ currentProduct.price | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <label>Disponível:</label>
+            <span>
+              <i [class]="currentProduct.available ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"></i>
+              {{ currentProduct.available ? 'Sim' : 'Não' }}
+            </span>
+          </div>
+          
+          <div class="detail-row" *ngIf="currentProduct.created_at">
+            <label>Criado em:</label>
+            <span>{{ currentProduct.created_at | date:'dd/MM/yyyy HH:mm':'pt-BR' }}</span>
+          </div>
+          
+          <div class="detail-row" *ngIf="currentProduct.updated_at">
+            <label>Atualizado em:</label>
+            <span>{{ currentProduct.updated_at | date:'dd/MM/yyyy HH:mm':'pt-BR' }}</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div *ngIf="!loading && !currentProduct" class="not-found-container">
+      <p-card>
+        <div class="not-found-content">
+          <i class="pi pi-exclamation-triangle" style="font-size: 3rem; color: #f39c12;"></i>
+          <h3>Produto não encontrado</h3>
+          <p>O produto solicitado não pôde ser encontrado.</p>
+        </div>
+      </p-card>
+    </div>
+  </div>
+</div>
