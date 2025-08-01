@@ -6,8 +6,6 @@ import { Subject, takeUntil } from 'rxjs';
 // PrimeNG Components
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
-import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
 
 import { AuthService, User } from '../../services/auth.service';
 
@@ -17,8 +15,7 @@ import { AuthService, User } from '../../services/auth.service';
   imports: [
     CommonModule,
     ButtonModule,
-    AvatarModule,
-    MenuModule
+    AvatarModule
   ],
   template: `
     <div class="app-header-user" *ngIf="isAuthenticated">
@@ -35,14 +32,13 @@ import { AuthService, User } from '../../services/auth.service';
         </div>
       </div>
       
-      <p-menu #userMenu [model]="menuItems" [popup]="true"></p-menu>
-      
       <button
         pButton
         pRipple
-        icon="pi pi-angle-down"
-        class="p-button-text p-button-plain"
-        (click)="userMenu.toggle($event)"
+        icon="pi pi-sign-out"
+        label="Sair"
+        class="p-button-danger p-button-sm"
+        (click)="logout()"
       ></button>
     </div>
   `,
@@ -111,7 +107,6 @@ import { AuthService, User } from '../../services/auth.service';
 export class HeaderComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   isAuthenticated = false;
-  menuItems: MenuItem[] = [];
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -132,7 +127,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         this.currentUser = user;
-        this.updateMenuItems();
       });
   }
 
@@ -151,38 +145,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.currentUser.username.substring(0, 2).toUpperCase();
   }
 
-  private updateMenuItems(): void {
-    this.menuItems = [
-      {
-        label: 'Perfil',
-        icon: 'pi pi-user',
-        command: () => {
-          // Navegar para página de perfil (implementar conforme necessário)
-          console.log('Navegar para perfil');
-        }
-      },
-      {
-        label: 'Configurações',
-        icon: 'pi pi-cog',
-        command: () => {
-          // Navegar para configurações (implementar conforme necessário)
-          console.log('Navegar para configurações');
-        }
-      },
-      {
-        separator: true
-      },
-      {
-        label: 'Sair',
-        icon: 'pi pi-sign-out',
-        command: () => {
-          this.logout();
-        }
-      }
-    ];
-  }
-
-  private logout(): void {
+  logout(): void {
     this.authService.logout().subscribe({
       next: () => {
         this.router.navigate(['/login']);
