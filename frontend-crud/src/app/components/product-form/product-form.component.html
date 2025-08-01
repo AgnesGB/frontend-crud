@@ -1,84 +1,174 @@
-<!-- Diálogo para Inserir/Atualizar Produto (Modal de Formulário) -->
+<!-- Diálogo aprimorado para Inserir/Atualizar Produto -->
 <p-dialog
   [(visible)]="visible"
-  [style]="{ width: '450px' }"
+  [style]="{ width: '500px', maxWidth: '90vw' }"
   [header]="dialogTitle"
   [modal]="true"
   styleClass="p-fluid"
   (onHide)="hideDialog()"
+  [draggable]="false"
+  [resizable]="false"
 >
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-3">
+      <div class="flex align-items-center justify-content-center bg-primary-100 text-primary-700 border-circle" 
+           style="width: 3rem; height: 3rem;">
+        <i class="pi pi-box text-lg"></i>
+      </div>
+      <div>
+        <div class="text-xl font-semibold">{{ dialogTitle }}</div>
+        <div class="text-sm text-600">Preencha os dados do produto</div>
+      </div>
+    </div>
+  </ng-template>
+
   <ng-template pTemplate="content">
-    <form [formGroup]="productForm">
-      <div class="field mb-3">
-        <label for="name">Nome *</label>
-        <input
-          id="name"
-          type="text"
-          pInputText
-          formControlName="name"
-          required
-          autofocus
-          [ngClass]="{
-            'ng-dirty ng-invalid': isFieldInvalid('name')
-          }"
-        />
+    <form [formGroup]="productForm" class="mt-4">
+      <!-- Campo Nome -->
+      <div class="field mb-4">
+        <label for="name" class="block">
+          <i class="pi pi-tag mr-2"></i>
+          Nome do Produto *
+        </label>
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">
+            <i class="pi pi-box"></i>
+          </span>
+          <input
+            id="name"
+            type="text"
+            pInputText
+            formControlName="name"
+            placeholder="Digite o nome do produto"
+            required
+            autofocus
+            [ngClass]="{
+              'ng-dirty ng-invalid': isFieldInvalid('name')
+            }"
+          />
+        </div>
         <small
-          class="p-error"
+          class="p-error block mt-2"
           *ngIf="isFieldInvalid('name')"
         >
+          <i class="pi pi-exclamation-triangle mr-1"></i>
           {{ getFieldError('name') }}
         </small>
       </div>
 
-      <div class="field mb-3">
-        <label for="price">Preço *</label>
-        <p-inputNumber
-          id="price"
-          formControlName="price"
-          [min]="0"
-          [showButtons]="true"
-          mode="decimal"
-          [minFractionDigits]="2"
-          [maxFractionDigits]="2"
-          currency="BRL"
-          locale="pt-BR"
-        ></p-inputNumber>
+      <!-- Campo Preço -->
+      <div class="field mb-4">
+        <label for="price" class="block">
+          <i class="pi pi-dollar mr-2"></i>
+          Preço *
+        </label>
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">R$</span>
+          <p-inputNumber
+            id="price"
+            formControlName="price"
+            [min]="0"
+            [showButtons]="true"
+            mode="decimal"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            currency="BRL"
+            locale="pt-BR"
+            placeholder="0,00"
+            [step]="0.01"
+            [ngClass]="{
+              'ng-dirty ng-invalid': isFieldInvalid('price')
+            }"
+          ></p-inputNumber>
+        </div>
         <small
-          class="p-error"
+          class="p-error block mt-2"
           *ngIf="isFieldInvalid('price')"
         >
+          <i class="pi pi-exclamation-triangle mr-1"></i>
           {{ getFieldError('price') }}
         </small>
       </div>
 
-      <div class="field-checkbox mb-3">
-        <p-checkbox
-          formControlName="available"
-          [binary]="true"
-          inputId="available"
-        ></p-checkbox>
-        <label for="available" class="ml-2">Disponível</label>
+      <!-- Campo Disponibilidade -->
+      <div class="field mb-4">
+        <div class="flex align-items-center">
+          <p-checkbox
+            formControlName="available"
+            [binary]="true"
+            inputId="available"
+            class="mr-3"
+          ></p-checkbox>
+          <label for="available" class="mb-0 cursor-pointer">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-check-circle text-green-500"></i>
+              <span class="font-medium">Produto disponível para venda</span>
+            </div>
+            <div class="text-sm text-600 mt-1">
+              Marque esta opção se o produto estiver em estoque
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Preview do produto -->
+      <div class="field" *ngIf="productForm.get('name')?.value || productForm.get('price')?.value">
+        <label class="block mb-3">
+          <i class="pi pi-eye mr-2"></i>
+          Pré-visualização
+        </label>
+        <div class="border-round p-3 bg-gray-50" style="border: 1px solid #e5e7eb;">
+          <div class="flex align-items-center gap-3">
+            <div class="flex align-items-center justify-content-center bg-primary-100 text-primary-700 border-circle" 
+                 style="width: 2.5rem; height: 2.5rem;">
+              <i class="pi pi-box"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-semibold text-900">
+                {{ productForm.get('name')?.value || 'Nome do produto' }}
+              </div>
+              <div class="text-lg font-bold text-primary">
+                {{ (productForm.get('price')?.value || 0) | currency:'BRL':'symbol':'1.2-2' }}
+              </div>
+            </div>
+            <div class="text-center">
+              <span class="status-icon" 
+                    [ngClass]="{
+                      'status-available': productForm.get('available')?.value,
+                      'status-unavailable': !productForm.get('available')?.value
+                    }">
+                <i class="pi" 
+                   [ngClass]="{
+                     'pi-check-circle': productForm.get('available')?.value,
+                     'pi-times-circle': !productForm.get('available')?.value
+                   }"></i>
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </form>
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <button
-      pButton
-      pRipple
-      label="Cancelar"
-      icon="pi pi-times"
-      class="p-button-text"
-      (click)="onCancel()"
-    ></button>
-    <button
-      pButton
-      pRipple
-      label="Salvar"
-      icon="pi pi-check"
-      class="p-button-text"
-      [disabled]="productForm.invalid"
-      (click)="onSave()"
-    ></button>
+    <div class="flex justify-content-between w-full">
+      <button
+        pButton
+        pRipple
+        label="Cancelar"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="onCancel()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        [label]="isEditing ? 'Atualizar' : 'Salvar'"
+        [icon]="isEditing ? 'pi pi-check' : 'pi pi-plus'"
+        class="p-button-success"
+        [disabled]="productForm.invalid"
+        (click)="onSave()"
+      ></button>
+    </div>
   </ng-template>
 </p-dialog>

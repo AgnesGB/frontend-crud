@@ -1,61 +1,167 @@
-<!-- Diálogo para Visualizar Detalhes do Produto -->
+<!-- Diálogo aprimorado para Visualizar Detalhes do Produto -->
 <p-dialog
   [(visible)]="visible"
-  [style]="{ width: '500px' }"
-  header="Detalhes do Produto"
+  [style]="{ width: '600px', maxWidth: '90vw' }"
   [modal]="true"
   (onHide)="hideDialog()"
+  [draggable]="false"
+  [resizable]="false"
 >
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-3">
+      <div class="flex align-items-center justify-content-center bg-blue-100 text-blue-700 border-circle" 
+           style="width: 3rem; height: 3rem;">
+        <i class="pi pi-info-circle text-lg"></i>
+      </div>
+      <div>
+        <div class="text-xl font-semibold">Detalhes do Produto</div>
+        <div class="text-sm text-600">Informações completas do produto</div>
+      </div>
+    </div>
+  </ng-template>
+
   <ng-template pTemplate="content">
-    <div class="product-details" *ngIf="product">
-      <div class="detail-row">
-        <label class="detail-label">ID:</label>
-        <span class="detail-value">{{ product.id }}</span>
+    <div class="product-details fade-in-up" *ngIf="product">
+      <!-- Card Principal do Produto -->
+      <div class="mb-4 p-4 border-round bg-white shadow-2" style="border: 1px solid #e5e7eb;">
+        <div class="flex align-items-center gap-4">
+          <div class="flex align-items-center justify-content-center bg-primary-100 text-primary-700 border-circle" 
+               style="width: 4rem; height: 4rem;">
+            <i class="pi pi-box text-2xl"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-2xl font-bold text-900 mb-2">{{ product.name }}</div>
+            <div class="text-3xl font-bold text-primary mb-2">
+              {{ product.price | currency:'BRL':'symbol':'1.2-2' }}
+            </div>
+            <div class="flex align-items-center gap-2">
+              <span class="status-icon" 
+                    [ngClass]="{
+                      'status-available': product.available,
+                      'status-unavailable': !product.available
+                    }">
+                <i class="pi" 
+                   [ngClass]="{
+                     'pi-check-circle': product.available,
+                     'pi-times-circle': !product.available
+                   }"></i>
+              </span>
+              <span class="font-medium"
+                    [ngClass]="{
+                      'text-green-600': product.available,
+                      'text-red-600': !product.available
+                    }">
+                {{ product.available ? 'Disponível para venda' : 'Produto indisponível' }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <div class="detail-row">
-        <label class="detail-label">Nome:</label>
-        <span class="detail-value">{{ product.name }}</span>
-      </div>
-      
-      <div class="detail-row">
-        <label class="detail-label">Preço:</label>
-        <span class="detail-value">{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</span>
-      </div>
-      
-      <div class="detail-row">
-        <label class="detail-label">Disponibilidade:</label>
-        <span class="detail-value">
-          <i
-            class="pi mr-2"
-            [ngClass]="{
-              'pi-check-circle': product.available,
-              'pi-times-circle': !product.available
-            }"
-            [style.color]="product.available ? 'green' : 'red'"
-          ></i>
-          {{ product.available ? 'Disponível' : 'Indisponível' }}
-        </span>
+
+      <!-- Informações Detalhadas -->
+      <div class="grid">
+        <div class="col-12 md:col-6">
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <i class="pi pi-hashtag text-blue-500 mr-2"></i>
+              <span>Identificação</span>
+            </div>
+            <div class="detail-card-content">
+              <div class="detail-item">
+                <span class="detail-label">ID do Produto:</span>
+                <span class="detail-value">#{{ product.id }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <i class="pi pi-tag text-purple-500 mr-2"></i>
+              <span>Informações Básicas</span>
+            </div>
+            <div class="detail-card-content">
+              <div class="detail-item">
+                <span class="detail-label">Nome:</span>
+                <span class="detail-value font-semibold">{{ product.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <i class="pi pi-dollar text-green-500 mr-2"></i>
+              <span>Preço</span>
+            </div>
+            <div class="detail-card-content">
+              <div class="detail-item">
+                <span class="detail-label">Valor:</span>
+                <span class="detail-value text-2xl font-bold text-green-600">
+                  {{ product.price | currency:'BRL':'symbol':'1.2-2' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <i class="pi pi-truck text-orange-500 mr-2"></i>
+              <span>Disponibilidade</span>
+            </div>
+            <div class="detail-card-content">
+              <div class="detail-item">
+                <span class="detail-label">Status:</span>
+                <div class="flex align-items-center gap-2">
+                  <span class="status-icon" 
+                        [ngClass]="{
+                          'status-available': product.available,
+                          'status-unavailable': !product.available
+                        }">
+                    <i class="pi" 
+                       [ngClass]="{
+                         'pi-check-circle': product.available,
+                         'pi-times-circle': !product.available
+                       }"></i>
+                  </span>
+                  <span class="font-medium"
+                        [ngClass]="{
+                          'text-green-600': product.available,
+                          'text-red-600': !product.available
+                        }">
+                    {{ product.available ? 'Em estoque' : 'Fora de estoque' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <button
-      pButton
-      pRipple
-      label="Editar"
-      icon="pi pi-pencil"
-      class="p-button-success mr-2"
-      (click)="onEdit()"
-    ></button>
-    <button
-      pButton
-      pRipple
-      label="Fechar"
-      icon="pi pi-times"
-      class="p-button-text"
-      (click)="onClose()"
-    ></button>
+    <div class="flex justify-content-between w-full">
+      <button
+        pButton
+        pRipple
+        label="Fechar"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="onClose()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Editar Produto"
+        icon="pi pi-pencil"
+        class="p-button-success"
+        (click)="onEdit()"
+      ></button>
+    </div>
   </ng-template>
 </p-dialog>
