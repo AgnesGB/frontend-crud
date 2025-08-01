@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -40,6 +40,8 @@ import { MessageService } from 'primeng/api';
   styleUrls: ['./product-crud.component.scss']
 })
 export class ProductCrudComponent implements OnInit, OnDestroy {
+  @ViewChild(ProductFormComponent) productFormComponent!: ProductFormComponent;
+  
   products: Product[] = [];
   selectedProduct: Product | null = null;
   
@@ -137,6 +139,10 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
             });
             this.formDialogVisible = false;
             this.isSubmitting = false;
+            // Reset form submitting state
+            if (this.productFormComponent) {
+              this.productFormComponent.resetSubmittingState();
+            }
           },
           error: (error) => {
             this.messageService.add({ 
@@ -146,6 +152,10 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
               life: 5000 
             });
             this.isSubmitting = false;
+            // Reset form submitting state
+            if (this.productFormComponent) {
+              this.productFormComponent.resetSubmittingState();
+            }
           }
         });
     } else {
@@ -162,6 +172,10 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
             });
             this.formDialogVisible = false;
             this.isSubmitting = false;
+            // Reset form submitting state
+            if (this.productFormComponent) {
+              this.productFormComponent.resetSubmittingState();
+            }
           },
           error: (error) => {
             this.messageService.add({ 
@@ -171,6 +185,10 @@ export class ProductCrudComponent implements OnInit, OnDestroy {
               life: 5000 
             });
             this.isSubmitting = false;
+            // Reset form submitting state
+            if (this.productFormComponent) {
+              this.productFormComponent.resetSubmittingState();
+            }
           }
         });
     }

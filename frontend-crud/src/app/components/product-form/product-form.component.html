@@ -23,10 +23,10 @@
   </ng-template>
 
   <ng-template pTemplate="content">
-    <form [formGroup]="productForm" class="mt-4">
+    <form [formGroup]="productForm" class="mt-4" novalidate>
       <!-- Campo Nome -->
       <div class="field mb-4">
-        <label for="name" class="block">
+        <label for="name" class="block mb-2">
           <i class="pi pi-tag mr-2"></i>
           Nome do Produto *
         </label>
@@ -42,23 +42,31 @@
             placeholder="Digite o nome do produto"
             required
             autofocus
-            [ngClass]="{
-              'ng-dirty ng-invalid': isFieldInvalid('name')
-            }"
+            maxlength="100"
+            autocomplete="off"
+            [class]="getFieldCssClass('name')"
           />
+          <!-- Indicador de validação visual -->
+          <span class="p-inputgroup-addon" *ngIf="isFieldValid('name')">
+            <i class="pi pi-check text-green-500"></i>
+          </span>
         </div>
-        <small
-          class="p-error block mt-2"
-          *ngIf="isFieldInvalid('name')"
-        >
+        
+        <!-- Mensagens de erro detalhadas -->
+        <small class="p-error block mt-2" *ngIf="isFieldInvalid('name')">
           <i class="pi pi-exclamation-triangle mr-1"></i>
           {{ getFieldError('name') }}
+        </small>
+        
+        <!-- Contador de caracteres -->
+        <small class="text-600 block mt-1" *ngIf="formControls['name'].value">
+          {{ formControls['name'].value.length }}/100 caracteres
         </small>
       </div>
 
       <!-- Campo Preço -->
       <div class="field mb-4">
-        <label for="price" class="block">
+        <label for="price" class="block mb-2">
           <i class="pi pi-dollar mr-2"></i>
           Preço *
         </label>
@@ -67,7 +75,8 @@
           <p-inputNumber
             id="price"
             formControlName="price"
-            [min]="0"
+            [min]="0.01"
+            [max]="1000000"
             [showButtons]="true"
             mode="decimal"
             [minFractionDigits]="2"
@@ -76,74 +85,133 @@
             locale="pt-BR"
             placeholder="0,00"
             [step]="0.01"
-            [ngClass]="{
-              'ng-dirty ng-invalid': isFieldInvalid('price')
-            }"
+            [useGrouping]="true"
+            [class]="getFieldCssClass('price')"
           ></p-inputNumber>
+          <!-- Indicador de validação visual -->
+          <span class="p-inputgroup-addon" *ngIf="isFieldValid('price')">
+            <i class="pi pi-check text-green-500"></i>
+          </span>
         </div>
-        <small
-          class="p-error block mt-2"
-          *ngIf="isFieldInvalid('price')"
-        >
+        
+        <!-- Mensagens de erro detalhadas -->
+        <small class="p-error block mt-2" *ngIf="isFieldInvalid('price')">
           <i class="pi pi-exclamation-triangle mr-1"></i>
           {{ getFieldError('price') }}
         </small>
+        
+        <!-- Dicas de ajuda -->
+        <small class="text-600 block mt-1">
+          <i class="pi pi-info-circle mr-1"></i>
+          Valor entre R$ 0,01 e R$ 1.000.000,00
+        </small>
       </div>
 
-      <!-- Campo Disponibilidade -->
+      <!-- Campo Disponibilidade com design aprimorado -->
       <div class="field mb-4">
-        <div class="flex align-items-center">
-          <p-checkbox
-            formControlName="available"
-            [binary]="true"
-            inputId="available"
-            class="mr-3"
-          ></p-checkbox>
-          <label for="available" class="mb-0 cursor-pointer">
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-check-circle text-green-500"></i>
-              <span class="font-medium">Produto disponível para venda</span>
+        <div class="surface-card border-round p-3" style="border: 1px solid #e5e7eb;">
+          <div class="flex align-items-start">
+            <p-checkbox
+              formControlName="available"
+              [binary]="true"
+              inputId="available"
+              class="mr-3 mt-1"
+            ></p-checkbox>
+            <div class="flex-1">
+              <label for="available" class="cursor-pointer block mb-2">
+                <div class="flex align-items-center gap-2">
+                  <i [class]="formControls['available'].value ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"></i>
+                  <span class="font-medium text-900">Produto disponível para venda</span>
+                </div>
+              </label>
+              <div class="text-sm text-600">
+                <span *ngIf="formControls['available'].value">
+                  ✅ O produto aparecerá como disponível para os clientes
+                </span>
+                <span *ngIf="!formControls['available'].value">
+                  ⚠️ O produto ficará indisponível para venda
+                </span>
+              </div>
             </div>
-            <div class="text-sm text-600 mt-1">
-              Marque esta opção se o produto estiver em estoque
-            </div>
-          </label>
+          </div>
         </div>
       </div>
 
-      <!-- Preview do produto -->
-      <div class="field" *ngIf="productForm.get('name')?.value || productForm.get('price')?.value">
+      <!-- Preview aprimorado do produto -->
+      <div class="field" *ngIf="formControls['name'].value || formControls['price'].value">
         <label class="block mb-3">
           <i class="pi pi-eye mr-2"></i>
-          Pré-visualização
+          Pré-visualização do Produto
         </label>
-        <div class="border-round p-3 bg-gray-50" style="border: 1px solid #e5e7eb;">
-          <div class="flex align-items-center gap-3">
+        <div class="surface-card border-round p-4" style="border: 2px dashed #d1d5db;">
+          <div class="flex align-items-center gap-4">
+            <!-- Ícone do produto -->
             <div class="flex align-items-center justify-content-center bg-primary-100 text-primary-700 border-circle" 
-                 style="width: 2.5rem; height: 2.5rem;">
-              <i class="pi pi-box"></i>
+                 style="width: 3.5rem; height: 3.5rem;">
+              <i class="pi pi-box text-xl"></i>
             </div>
+            
+            <!-- Informações do produto -->
             <div class="flex-1">
-              <div class="font-semibold text-900">
-                {{ productForm.get('name')?.value || 'Nome do produto' }}
+              <div class="text-xl font-semibold text-900 mb-1">
+                {{ formControls['name'].value || 'Nome do produto' }}
               </div>
-              <div class="text-lg font-bold text-primary">
-                {{ (productForm.get('price')?.value || 0) | currency:'BRL':'symbol':'1.2-2' }}
+              <div class="text-2xl font-bold text-primary mb-2">
+                {{ (formControls['price'].value || 0) | currency:'BRL':'symbol':'1.2-2' }}
+              </div>
+              
+              <!-- Tags de status -->
+              <div class="flex gap-2">
+                <span class="px-2 py-1 border-round text-xs font-medium"
+                      [ngClass]="{
+                        'bg-green-100 text-green-800': formControls['available'].value,
+                        'bg-red-100 text-red-800': !formControls['available'].value
+                      }">
+                  <i [class]="formControls['available'].value ? 'pi pi-check' : 'pi pi-times'" class="mr-1"></i>
+                  {{ formControls['available'].value ? 'Disponível' : 'Indisponível' }}
+                </span>
+                
+                <span class="px-2 py-1 bg-blue-100 text-blue-800 border-round text-xs font-medium">
+                  <i class="pi pi-tag mr-1"></i>
+                  {{ isEditMode ? 'Editando' : 'Novo' }}
+                </span>
               </div>
             </div>
+            
+            <!-- Status visual -->
             <div class="text-center">
-              <span class="status-icon" 
-                    [ngClass]="{
-                      'status-available': productForm.get('available')?.value,
-                      'status-unavailable': !productForm.get('available')?.value
-                    }">
-                <i class="pi" 
+              <div class="status-indicator mb-2"
                    [ngClass]="{
-                     'pi-check-circle': productForm.get('available')?.value,
-                     'pi-times-circle': !productForm.get('available')?.value
-                   }"></i>
-              </span>
+                     'bg-green-500': formControls['available'].value && isFormValid(),
+                     'bg-orange-500': formControls['available'].value && !isFormValid(),
+                     'bg-red-500': !formControls['available'].value
+                   }"
+                   style="width: 1rem; height: 1rem; border-radius: 50%;">
+              </div>
+              <small class="text-600">
+                {{ getProductStatus() }}
+              </small>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumo do formulário -->
+      <div class="field mt-4" *ngIf="isFormDirty()">
+        <div class="surface-100 border-round p-3">
+          <div class="text-sm text-600 mb-2">
+            <i class="pi pi-info-circle mr-1"></i>
+            Status do Formulário
+          </div>
+          <div class="flex gap-4 text-sm">
+            <span [ngClass]="{'text-green-600': isFormValid(), 'text-red-600': !isFormValid()}">
+              <i [class]="isFormValid() ? 'pi pi-check-circle' : 'pi pi-times-circle'" class="mr-1"></i>
+              {{ isFormValid() ? 'Válido' : 'Inválido' }}
+            </span>
+            <span [ngClass]="{'text-blue-600': isFormDirty(), 'text-gray-600': !isFormDirty()}">
+              <i [class]="isFormDirty() ? 'pi pi-pencil' : 'pi pi-circle'" class="mr-1"></i>
+              {{ isFormDirty() ? 'Modificado' : 'Não modificado' }}
+            </span>
           </div>
         </div>
       </div>
@@ -151,24 +219,53 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <div class="flex justify-content-between w-full">
-      <button
-        pButton
-        pRipple
-        label="Cancelar"
-        icon="pi pi-times"
-        class="p-button-outlined p-button-secondary"
-        (click)="onCancel()"
-      ></button>
-      <button
-        pButton
-        pRipple
-        [label]="isEditing ? 'Atualizar' : 'Salvar'"
-        [icon]="isEditing ? 'pi pi-check' : 'pi pi-plus'"
-        class="p-button-success"
-        [disabled]="productForm.invalid"
-        (click)="onSave()"
-      ></button>
+    <div class="flex justify-content-between align-items-center w-full">
+      <!-- Botão Cancelar -->
+      <div class="flex gap-2">
+        <button
+          pButton
+          pRipple
+          label="Cancelar"
+          icon="pi pi-times"
+          class="p-button-outlined p-button-secondary"
+          [disabled]="isSubmitting"
+          (click)="onCancel()"
+        ></button>
+        
+        <!-- Botão Limpar (só quando editando) -->
+        <button
+          pButton
+          pRipple
+          label="Limpar"
+          icon="pi pi-refresh"
+          class="p-button-outlined p-button-help"
+          *ngIf="isFormDirty() && !isEditMode"
+          [disabled]="isSubmitting"
+          (click)="resetForm()"
+        ></button>
+      </div>
+
+      <!-- Status e botão salvar -->
+      <div class="flex align-items-center gap-3">
+        <!-- Indicador de status -->
+        <div class="text-sm text-600" *ngIf="isFormDirty()">
+          <i [class]="isFormValid() ? 'pi pi-check-circle text-green-500' : 'pi pi-exclamation-triangle text-orange-500'" class="mr-1"></i>
+          <span *ngIf="!isFormValid()">{{ getValidationSummary() }}</span>
+          <span *ngIf="isFormValid()">Pronto para salvar</span>
+        </div>
+        
+        <!-- Botão Salvar/Atualizar -->
+        <button
+          pButton
+          pRipple
+          [label]="getSaveButtonLabel()"
+          [icon]="getSaveButtonIcon()"
+          class="p-button-success"
+          [disabled]="!isFormValid() || isSubmitting"
+          [loading]="isSubmitting"
+          (click)="onSave()"
+        ></button>
+      </div>
     </div>
   </ng-template>
 </p-dialog>
