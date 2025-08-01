@@ -9,4 +9,6 @@ import { HeaderComponent } from './components/header/header.component';
   imports: [CommonModule, RouterOutlet, HeaderComponent],
   templateUrl: './app.component.html', 
 })
-export class AppComponent { /* ... */ }
+export class AppComponent {
+  title = 'frontend-crud';
+}

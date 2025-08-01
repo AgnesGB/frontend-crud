@@ -1,0 +1,39 @@
+<div class="product-form-page">
+  <p-toast></p-toast>
+  
+  <div class="page-header">
+    <p-toolbar>
+      <ng-template pTemplate="left">
+        <h2>{{ pageTitle }}</h2>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <p-button 
+          label="Lista" 
+          icon="pi pi-list" 
+          severity="secondary"
+          [text]="true"
+          (click)="goBackToList()">
+        </p-button>
+        <p-button 
+          label="CRUD" 
+          icon="pi pi-arrow-left" 
+          severity="secondary"
+          (click)="goBackToCrud()">
+        </p-button>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <div class="page-content">
+    <p-card>
+      <div class="form-container">
+        <app-product-form
+          [visible]="true"
+          [product]="currentProduct"
+          (save)="onSave($event)"
+          (cancel)="onCancel()">
+        </app-product-form>
+      </div>
+    </p-card>
+  </div>
+</div>
