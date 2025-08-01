@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Product, CreateProductRequest, UpdateProductRequest } from '../models/product.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,10 @@ export class ProductService {
   private productsSubject = new BehaviorSubject<Product[]>([]);
   public products$ = this.productsSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {
     // Carrega os produtos automaticamente ao instanciar o service
     this.loadProducts();
   }
@@ -23,7 +27,9 @@ export class ProductService {
    * Lista todos os produtos do backend
    */
   getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.baseUrl}/`).pipe(
+    return this.http.get<Product[]>(`${this.baseUrl}/`, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
       tap(products => this.productsSubject.next(products)),
       catchError(this.handleError)
     );
@@ -33,7 +39,9 @@ export class ProductService {
    * Busca um produto específico por ID
    */
   getProductById(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.baseUrl}/${id}/`).pipe(
+    return this.http.get<Product>(`${this.baseUrl}/${id}/`, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
       catchError(this.handleError)
     );
   }
@@ -42,7 +50,9 @@ export class ProductService {
    * Cria um novo produto
    */
   addProduct(productData: CreateProductRequest): Observable<Product> {
-    return this.http.post<Product>(this.baseUrl + '/', productData).pipe(
+    return this.http.post<Product>(this.baseUrl + '/', productData, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
       tap(newProduct => {
         const currentProducts = this.productsSubject.value;
         this.productsSubject.next([...currentProducts, newProduct]);
@@ -55,7 +65,9 @@ export class ProductService {
    * Atualiza um produto existente (PUT - atualização completa)
    */
   updateProduct(id: number, productData: UpdateProductRequest): Observable<Product> {
-    return this.http.put<Product>(`${this.baseUrl}/${id}/`, productData).pipe(
+    return this.http.put<Product>(`${this.baseUrl}/${id}/`, productData, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
       tap(updatedProduct => {
         const currentProducts = this.productsSubject.value;
         const index = currentProducts.findIndex(p => p.id === id);
@@ -72,7 +84,9 @@ export class ProductService {
    * Atualiza parcialmente um produto (PATCH)
    */
   patchProduct(id: number, productData: Partial<UpdateProductRequest>): Observable<Product> {
-    return this.http.patch<Product>(`${this.baseUrl}/${id}/`, productData).pipe(
+    return this.http.patch<Product>(`${this.baseUrl}/${id}/`, productData, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
       tap(updatedProduct => {
         const currentProducts = this.productsSubject.value;
         const index = currentProducts.findIndex(p => p.id === id);
@@ -89,7 +103,9 @@ export class ProductService {
    * Remove um produto
    */
   deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}/`).pipe(
+    return this.http.delete<void>(`${this.baseUrl}/${id}/`, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
       tap(() => {
         const currentProducts = this.productsSubject.value;
         const filteredProducts = currentProducts.filter(p => p.id !== id);
@@ -103,7 +119,9 @@ export class ProductService {
    * Lista apenas produtos disponíveis
    */
   getAvailableProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.baseUrl}/available/`).pipe(
+    return this.http.get<Product[]>(`${this.baseUrl}/available/`, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
       catchError(this.handleError)
     );
   }

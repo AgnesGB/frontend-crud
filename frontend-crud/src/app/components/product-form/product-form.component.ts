@@ -8,18 +8,21 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 @Component({
   selector: 'app-product-form',
-  standalone: true,
-  imports: [
+  standalone: true,  imports: [
     CommonModule,
     ReactiveFormsModule,
     DialogModule,
     ButtonModule,
     InputTextModule,
     InputNumberModule,
-    CheckboxModule
+    CheckboxModule,
+    InputGroupModule,
+    InputGroupAddonModule
   ],
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss']
@@ -31,9 +34,12 @@ export class ProductFormComponent implements OnInit, OnChanges {
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() save = new EventEmitter<CreateProductRequest | { id: number, data: UpdateProductRequest }>();
   @Output() cancel = new EventEmitter<void>();
-
   productForm!: FormGroup;
   isEditMode: boolean = false;
+
+  get isEditing(): boolean {
+    return this.isEditMode;
+  }
 
   constructor(private fb: FormBuilder) {}
 

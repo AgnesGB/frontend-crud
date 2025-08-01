@@ -1,40 +1,75 @@
-<!-- Diálogo de confirmação de exclusão -->
+<!-- Diálogo aprimorado de confirmação de exclusão -->
 <p-dialog
   [(visible)]="visible"
-  header="Confirmar Exclusão"
   [modal]="true"
-  [style]="{ width: '450px' }"
+  [style]="{ width: '450px', maxWidth: '90vw' }"
   (onHide)="hideDialog()"
+  [draggable]="false"
+  [resizable]="false"
 >
-  <div class="confirmation-content">
-    <i class="pi pi-exclamation-triangle warning-icon"></i>
-    <div class="confirmation-message">
-      <p>Tem certeza que deseja excluir o produto?</p>
-      <div class="product-info" *ngIf="product">
-        <strong>{{ product.name }}</strong>
-        <br>
-        <small>ID: {{ product.id }} | Preço: {{ product.price | currency:'BRL':'symbol':'1.2-2' }}</small>
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-3">
+      <div class="flex align-items-center justify-content-center bg-red-100 text-red-700 border-circle" 
+           style="width: 3rem; height: 3rem;">
+        <i class="pi pi-exclamation-triangle text-lg"></i>
       </div>
-      <p class="warning-text">Esta ação não pode ser desfeita.</p>
+      <div>        <div class="text-xl font-semibold text-red-700">Confirmar Exclusão</div>
+        <div class="text-sm text-600">Esta ação não pode ser desfeita</div>
+      </div>
     </div>
-  </div>
-  
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div class="confirmation-content fade-in-up">
+      <!-- Pergunta de Confirmação -->
+      <div class="text-center mb-4">
+        <div class="text-lg text-900 mb-3">
+          Tem certeza que deseja excluir este produto?
+        </div>
+        
+        <!-- Informações do Produto -->
+        <div class="product-preview" *ngIf="product">
+          <div class="p-3 border-round bg-red-50" style="border: 1px solid #fecaca;">
+            <div class="flex align-items-center gap-3">
+              <div class="flex align-items-center justify-content-center bg-red-200 text-red-700 border-circle" 
+                   style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-box"></i>
+              </div>
+              <div class="flex-1 text-left">
+                <div class="font-semibold text-900 text-lg">{{ product.name }}</div>
+                <div class="text-green-600 font-semibold">
+                  {{ product.price | currency:'BRL':'symbol':'1.2-2' }}
+                </div>
+                <div class="text-sm text-600">ID: {{ product.id }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-red-600 mt-3">
+          <i class="pi pi-info-circle mr-2"></i>
+          Esta ação é permanente e não pode ser desfeita
+        </div>      </div>
+    </div>
+  </ng-template>
+
   <ng-template pTemplate="footer">
-    <button
-      pButton
-      pRipple
-      icon="pi pi-times"
-      class="p-button-text"
-      label="Cancelar"
-      (click)="onCancel()"
-    ></button>
-    <button
-      pButton
-      pRipple
-      icon="pi pi-check"
-      class="p-button-danger"
-      label="Confirmar Exclusão"
-      (click)="onConfirm()"
-    ></button>
+    <div class="flex justify-content-between w-full">
+      <button
+        pButton
+        pRipple
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        label="Cancelar"
+        (click)="onCancel()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        icon="pi pi-trash"
+        class="p-button-danger"
+        label="Sim, Excluir"
+        (click)="onConfirm()"
+      ></button>
+    </div>
   </ng-template>
 </p-dialog>

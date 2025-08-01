@@ -1,11 +1,18 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Product
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer, UserRegistrationSerializer, UserLoginSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     """
@@ -114,3 +121,123 @@ class ProductViewSet(viewsets.ModelViewSet):
         available_products = self.get_queryset().filter(available=True)
         serializer = self.get_serializer(available_products, many=True)
         return Response(serializer.data)
+
+
+# Views de Autenticação
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request):
+    """
+    Registra um novo usuário
+    """
+    try:
+        serializer = UserRegistrationSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            user = serializer.save()
+            
+            # Criar token para o usuário
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                'message': 'Usuário criado com sucesso',
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'firstName': user.first_name,
+                    'lastName': user.last_name
+                },
+                'access_token': token.key
+            }, status=status.HTTP_201_CREATED)
+        else:
+            # Retorna erros de validação do serializer
+            return Response({
+                'error': 'Dados inválidos',
+                'details': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    """
+    Faz login do usuário
+    """
+    try:
+        serializer = UserLoginSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+            
+            # Autenticar usuário
+            user = authenticate(username=username, password=password)
+            
+            if user is None:
+                return Response(
+                    {'error': 'Credenciais inválidas'}, 
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+            
+            # Obter ou criar token
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                'message': 'Login realizado com sucesso',
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'firstName': user.first_name,
+                    'lastName': user.last_name
+                },
+                'access_token': token.key
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'error': 'Dados inválidos',
+                'details': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@csrf_exempt
+@api_view(['POST'])
+def logout(request):
+    """
+    Faz logout do usuário (deleta o token)
+    """
+    try:
+        # Deletar o token do usuário
+        token = Token.objects.get(user=request.user)
+        token.delete()
+        
+        return Response(
+            {'message': 'Logout realizado com sucesso'}, 
+            status=status.HTTP_200_OK
+        )
+        
+    except Token.DoesNotExist:
+        return Response(
+            {'error': 'Token não encontrado'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
